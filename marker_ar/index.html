@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hero Marker AR</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://rawcdn.githack.com/jeromeetienne/AR.js/1.7.7/aframe/build/aframe-ar.js"></script>
+    <style>
+      #sizeSliderContainer, #rotationXSliderContainer, #rotationYSliderContainer, #rotationZSliderContainer {
+        position: fixed;
+        z-index: 9999; /* Ensure it's above other elements */
+        width: 20%;
+        margin: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #sizeSliderContainer {
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      #rotationXSliderContainer {
+        top: 50%;
+        left: 20px;
+        transform: translateY(-50%);
+      }
+      #rotationYSliderContainer {
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      #rotationZSliderContainer {
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+      }
+      .slider-label {
+        margin-bottom: 5px;
+        color: white;
+      }
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const marker = document.querySelector('a-marker');
+        const model = document.querySelector('#beadsModel');
+        const sizeSlider = document.querySelector('#sizeSlider');
+        const rotationXSlider = document.querySelector('#rotationXSlider');
+        const rotationYSlider = document.querySelector('#rotationYSlider');
+        const rotationZSlider = document.querySelector('#rotationZSlider');
+
+        sizeSlider.addEventListener('input', () => {
+          const scaleValue = parseFloat(sizeSlider.value);
+          const scale = `${scaleValue} ${scaleValue} ${scaleValue}`;
+          model.setAttribute('scale', scale);
+        });
+
+        const updateRotation = () => {
+          const rotationX = parseFloat(rotationXSlider.value);
+          const rotationY = parseFloat(rotationYSlider.value);
+          const rotationZ = parseFloat(rotationZSlider.value);
+          const rotation = `${rotationX} ${rotationY} ${rotationZ}`;
+          model.setAttribute('rotation', rotation);
+        };
+
+        rotationXSlider.addEventListener('input', updateRotation);
+        rotationYSlider.addEventListener('input', updateRotation);
+        rotationZSlider.addEventListener('input', updateRotation);
+
+        marker.addEventListener('markerFound', () => {
+          console.log('Marker found!');
+          // Reset slider position
+          sizeSlider.value = 0.5; // Set default scale
+          rotationXSlider.value = 0; // Set default rotation for X axis
+          rotationYSlider.value = 0; // Set default rotation for Y axis
+          rotationZSlider.value = 0; // Set default rotation for Z axis
+        });
+
+        marker.addEventListener('markerLost', () => {
+          console.log('Marker lost!');
+          // Reset model scale and rotation
+          model.setAttribute('scale', '0.5 0.5 0.5');
+          model.setAttribute('rotation', '0 0 0');
+        });
+      });
+    </script>
+  </head>
+  <body style="margin: 0; overflow: hidden;">
+    <!-- Slider controls -->
+    <div id="sizeSliderContainer">
+      <div class="slider-label">Size</div>
+      <input id="sizeSlider" type="range" min="0.1" max="2" step="0.1" value="1" />
+    </div>
+    <div id="rotationXSliderContainer">
+      <div class="slider-label">Rotate X</div>
+      <input id="rotationXSlider" type="range" min="0" max="360" step="1" value="0" />
+    </div>
+    <div id="rotationYSliderContainer">
+      <div class="slider-label">Rotate Y</div>
+      <input id="rotationYSlider" type="range" min="0" max="360" step="1" value="0" />
+    </div>
+    <div id="rotationZSliderContainer">
+      <div class="slider-label">Rotate Z</div>
+      <input id="rotationZSlider" type="range" min="0" max="360" step="1" value="0" />
+    </div>
+
+    <a-scene embedded arjs="sourceType: webcam;">
+      <!-- Define the marker -->
+      <a-marker type="pattern" url="pattern-test.patt">
+        <!-- Add 3D content to the marker -->
+        <a-entity id="beadsModel" gltf-model="url(Torsion.glb)" scale="0.5 0.5 0.5" position="0 0 0"></a-entity>
+        <!-- <a-entity id="beadsModel" gltf-model="url(beads.gltf)" scale="0.5 0.5 0.5" position="0 0 0"></a-entity> -->
+      </a-marker>
+      <a-entity camera></a-entity>
+    </a-scene>
+  </body>
+</html>
